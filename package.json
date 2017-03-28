@@ -1,0 +1,32 @@
+{
+  "name": "freshhbot",
+  "version": "1.0.0",
+  "description": "get fresh hip hop track, bot for telegram",
+  "main": "server.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sgarro/FreshHHBot.git"
+  },
+  "keywords": [
+    "bot",
+    "telegram",
+    "hiphop",
+    "fresh"
+  ],
+  "author": "Matteo Semeraro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sgarro/FreshHHBot/issues"
+  },
+  "homepage": "https://github.com/sgarro/FreshHHBot#readme",
+  "dependencies": {
+    "express": "^4.15.2",
+    "node-telegram-bot-api": "^0.27.0",
+    "redwrap": "0.0.4",
+    "spotify-web-api-node": "^2.3.6",
+    "telegram-bot-bootstrap": "0.0.15"
+  }
+}
