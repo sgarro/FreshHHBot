@@ -15,7 +15,7 @@ bot.onText(/\/artist (.+) ([0-9])/, function (msg, match) {
   var resp = match[1];
   var artist = resp.replace(' ', '+')
   var limit = match[2];
-  // console.log(limit)
+  console.log(limit)
   var i = 0;
   var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFRESH%5D+'+artist+'&restrict_sr=on&sort=new&t=all'
 
@@ -27,14 +27,17 @@ bot.onText(/\/artist (.+) ([0-9])/, function (msg, match) {
     if (!error && response.statusCode === 200) {
 
         var results = body.data.children
-        results.forEach(function (entry){
+        for (var t = 0; t < results.length; ++t){
+
           if(i == limit){
-            return
+            console.log('break')
+            break
+
           }
-          // console.log('ciao')
+          console.log('ciao')
           var patt = new RegExp(/fresh/i)
           var patto = new RegExp("^\\[[^\\]]*]")
-          var titolo = entry.data.title
+          var titolo = results[t].data.title
           // console.log(typeof(titolo))
           // console.log(patt)
           // check if flagged Fresh
@@ -42,13 +45,13 @@ bot.onText(/\/artist (.+) ([0-9])/, function (msg, match) {
           // while (i < 3){
             if (patto.test(titolo)&&patt.test(titolo)){
               console.log('TITOLO', titolo)
-              bot.sendMessage(fromId, entry.data.url)
+              bot.sendMessage(fromId, results[t].data.url)
               i=i+1
 
               // console.log(entry.data.title)
             }
           // }
-        })
+        }
 
 
 
