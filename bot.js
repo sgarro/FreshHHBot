@@ -60,21 +60,21 @@ bot.onText(/\/artist (.+) ([0-9])/, function (msg, match) {
         // bot.sendMessage(fromId, body.data.children[0].data.url); // Print the json response
     }
   })
-  console.log(url)
+})
   // Get artist from spotify, send url
 
-  spotifyApi.searchArtists(artist)
-  .then(function(data) {
-
-    // send url of spotify
-    var uri = data.body.artists.items[0].external_urls.spotify
-    // bot.sendMessage(fromId, uri);
-    // bot.sendMessage(fromId, url);
-  }, function(err) {
-    console.error(err);
-  });
-  // bot.sendMessage(fromId, url);
-});
+//   spotifyApi.searchArtists(artist)
+//   .then(function(data) {
+//
+//     // send url of spotify
+//     var uri = data.body.artists.items[0].external_urls.spotify
+//     // bot.sendMessage(fromId, uri);
+//     // bot.sendMessage(fromId, url);
+//   }, function(err) {
+//     console.error(err);
+//   });
+//   // bot.sendMessage(fromId, url);
+// });
 
 // GET NEW TRACKS
 
