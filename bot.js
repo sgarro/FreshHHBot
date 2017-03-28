@@ -79,7 +79,7 @@ bot.onText(/\/artist (.+) ([0-9])/, function (msg, match) {
 bot.onText(/\/new/, function (msg) {
   var fromId = msg.from.id;
   // GET LAST 20 posts
-  reddit.r('hiphopheads').new().from('day').exe(function(err, data, res){
+  reddit.r('hiphopheads').new().from('day').limit(1000).exe(function(err, data, res){
 
   data.data.children.forEach(function (entry){
     var patt = new RegExp(/fresh/i)
