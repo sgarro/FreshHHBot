@@ -12,9 +12,9 @@ console.log('connected')
 // Matches /artist [whatever]
 bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
   var fromId = msg.from.id;
-  var resp = parseInt(match[1]);
+  var resp = match[1];
   var artist = resp.replace(/\s/g, '+')
-  var limit = match[2];
+  var limit = parseInt(match[2]);
   var i = 0;
   var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFRESH%5D+'+artist+'&restrict_sr=on&sort=new&t=all'
 
