@@ -85,10 +85,12 @@ bot.onText(/\/new/, function (msg) {
     var patt = new RegExp(/fresh/i)
     var patto = new RegExp("\\[[^\\]]*]")
     var titolo = entry.data.title
+    console.log(titolo)
     // console.log(typeof(titolo))
     // console.log(patt)
     // check if flagged Fresh
     if (patto.test(titolo)&&patt.test(titolo)){
+
       bot.sendMessage(fromId, entry.data.url);
       // console.log(entry.data.title)
     }
