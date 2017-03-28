@@ -2,7 +2,7 @@
   "name": "freshhbot",
   "version": "1.0.0",
   "description": "get fresh hip hop track, bot for telegram",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "test"
   },
