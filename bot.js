@@ -78,14 +78,18 @@ bot.onText(/\/artist (.+) ([0-9])/, function (msg, match) {
 
 bot.onText(/\/new/, function (msg) {
   var fromId = msg.from.id;
+  var i = 0
   // GET LAST 20 posts
-  reddit.r('hiphopheads').new().from('day').limit(1000).exe(function(err, data, res){
+  reddit.r('hiphopheads').new().from('day').limit(200).exe(function(err, data, res){
 
+      // var results = body.data.children
   data.data.children.forEach(function (entry){
+    i=i+1
+    console.log(i)
     var patt = new RegExp(/fresh/i)
     var patto = new RegExp("\\[[^\\]]*]")
     var titolo = entry.data.title
-    console.log(titolo)
+    // console.log(titolo)
     // console.log(typeof(titolo))
     // console.log(patt)
     // check if flagged Fresh
@@ -97,24 +101,42 @@ bot.onText(/\/new/, function (msg) {
   })
 
 });
-
+// console.log(i)
 });
 
 
-bot.onText(/\/fresh/, function (msg) {
-  var url = 'https://www.reddit.com/r/hiphopheads/comments/5xml6i.json?'
+bot.onText(/\/new/, function (msg) {
+  var fromId = msg.from.id;
+  var i = 0
+  var url = 'https://www.reddit.com/r/hiphopheads/.json?search?q=%5BFresh%5D&sort=relevance&restrict_sr=on&t=day&limit=1000'
   request({
     url: url,
     json: true
   }, function (error, response, body) {
 
     if (!error && response.statusCode === 200) {
-        console.log(body[0].data.children[0].data.body_html)
-        // bot.sendMessage(fromId, body.data.children[0].data.url); // Print the json response
-    }
-  })
-  // bot.sendMessage(chatId, 'Hello, welcome to your fresh drops!');
-});
+        // console.log(body[0].data.children[0].data.body_html)
+          var results = body.data.children
+          results.forEach(function (entry){
+            i=i+1
+          var patt = new RegExp(/fresh/i)
+          var patto = new RegExp("\\[[^\\]]*]")
+          var titolo = entry.data.title
+          console.log(titolo)
+          // console.log(typeof(titolo))
+          // console.log(patt)
+          // check if flagged Fresh
+          if (patto.test(titolo)&&patt.test(titolo)){
+
+            bot.sendMessage(fromId, entry.data.url);
+            // console.log(entry.data.title)
+          }
+        })
+
+      }
+      console.log(i)
+      });
+    })
 
 
 
