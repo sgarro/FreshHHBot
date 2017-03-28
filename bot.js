@@ -110,7 +110,7 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
   var limit = parseInt(match[1]);
   // console.log(typeof(parseInt(limit)))
   var i = 0
-  var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFresh%5D&sort=new&restrict_sr=on&t=day&limit=1000'
+  var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFresh%5D&sort=top&restrict_sr=on&t=day&limit=1000'
   request({
     url: url,
     json: true
