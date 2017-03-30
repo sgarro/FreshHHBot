@@ -114,6 +114,7 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
             if (patto.test(titolo)&&patt.test(titolo)){
               console.log('URL', results[t].data.url)
               bot.sendMessage(fromId, results[t].data.url)
+              bot.sendMessage(msg.from.id, 'Wich link do you want?', options);
 
               i=i+1
               if(i == limit){
