@@ -1,13 +1,46 @@
 var TelegramBot = require('node-telegram-bot-api');
 var SpotifyWebApi = require('spotify-web-api-node');
+const Tgfancy = require("tgfancy");
+var token = '332116990:AAH7a3XIEp2HPKxCwiB6vChnCeH8Ns9IfQc';
+const bot = new Tgfancy(token, {
+    polling: true,
+    tgfancy: {
+        orderedSending: true, // 'false' to disable!
+    },
+
+});
 var request = require("request")
 var reddit = require('redwrap');
 var spotifyApi = new SpotifyWebApi();
 
-var token = '332116990:AAH7a3XIEp2HPKxCwiB6vChnCeH8Ns9IfQc';
 // Setup polling way
-var bot = new TelegramBot(token, {polling: true});
+// var bot = new TelegramBot(token, {polling: true});
 console.log('connected')
+
+// Options for links
+var options = {
+reply_markup: JSON.stringify({
+  inline_keyboard: [
+    [{ text: 'Youtube', callback_data: '0' }],
+    [{ text: 'iTunes', callback_data: '1' }],
+    [{ text: 'Spotify', callback_data: '2' }],
+    [{ text: 'Apple Music', callback_data: '3' }],
+  ]
+})
+};
+
+// Inline Query Yes or No
+var simpleQuery = {
+reply_markup: JSON.stringify({
+  inline_keyboard: [
+    [{ text: 'yes', callback_data: 'true' }],
+    [{ text: 'no', callback_data: 'false' }],
+  ]
+})
+};
+
+
+
 
 // Matches /artist [whatever]
 bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
@@ -17,39 +50,54 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
   var limit = parseInt(match[2]);
   var i = 0;
   var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFRESH%5D+'+artist+'&restrict_sr=on&sort=new&t=all'
-
+  bot.sendMessage(fromId, 'fetching last tracks')
   request({
     url: url,
     json: true
     }, function (error, response, body) {
-
       if (!error && response.statusCode === 200) {
-        console.log('success')
+        console.log('succes')
         var sended = []
         var results = body.data.children
-
         for (var t = 0; t < results.length; ++t){
-
           var patt = new RegExp(/fresh/i)
           var patto = new RegExp("^\\[[^\\]]*]")
           var titolo = results[t].data.title
+          try {
+          sended.push(results[t].data.secure_media.oembed.title)
+          }
+          catch(err){
+            console.log(err)
+          }
 
             if (patto.test(titolo)&&patt.test(titolo)){
+              console.log('TITOLO', titolo)
 
               if (sended.indexOf(results[t].data.url == -1)) {
-                bot.sendMessage(fromId, results[t].data.url)
+                var simpleQuery = {
+                reply_markup: JSON.stringify({
+                  inline_keyboard: [
+                    [{ text: 'Gimme the topic', url: 'http://reddit.com'+results[t].data.permalink }],
+
+                  ]
+                })
+                };
+                bot.sendMessage(fromId, results[t].data.url, simpleQuery)
+                // bot.sendMessage(msg.from.id, 'Gimme the topic', );
                 sended.push(results[t].data.url)
                 i=i+1
-                      if(i == limit){
-                        console.log('break')
-                        break
-                      }
-                }}}}
-
+                    if(i == limit){
+                      console.log('break')
+                      break
+                    }
+                  }
+                }
+              }
+            }
     else{
       bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')
+      console.log(body)
       }
-
     })
   })
 
@@ -59,9 +107,9 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
   var fromId = msg.from.id;
   console.log('new')
   var limit = parseInt(match[1]);
-  var sended = []
+  // console.log(typeof(parseInt(limit)))
   var i = 0
-  var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFresh%5D&sort=relevance&restrict_sr=on&t=day&limit=1000'
+  var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFresh%5D&sort=top&restrict_sr=on&t=day&limit=1000'
   request({
     url: url,
     json: true
@@ -69,7 +117,7 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
 
     if (!error && response.statusCode === 200) {
       console.log('succes')
-
+        var sended = []
         var results = body.data.children
         for (var t = 0; t < results.length; ++t){
 
@@ -79,27 +127,57 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
 
             if (patto.test(titolo)&&patt.test(titolo)){
               if (sended.indexOf(results[t].data.url == -1)) {
-                bot.sendMessage(fromId, results[t].data.url)
+                var simpleQuery = {
+                reply_markup: JSON.stringify({
+                  inline_keyboard: [
+                    [{ text: 'Gimme the topic', url: 'http://reddit.com'+results[t].data.permalink }],]
+                })
+                };
+                bot.sendMessage(fromId, results[t].data.url, simpleQuery)
                 sended.push(results[t].data.url)
                 i=i+1
 
-              if(i == limit){
-                console.log('break')
-                break
-                }
+                  if(i == limit){
+                    console.log('break')
+                    break
 
+                  }
             }}}}
-
-    else{bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')}
-  })
-})
+    else{
+      bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')
+    }})})
 
 
 
 bot.onText(/\/start/, function (msg) {
-  var chatId = msg.from.id;
+  var chatId = msg.id;
   bot.sendMessage(chatId, 'Hello, welcome to your fresh drops!');
 });
+
+
+
+bot.onText(/\/inline/, function (msg) {
+  var chatId = msg.from.id;
+  var link = ['youtube', 'itunes', 'spotify']
+
+  bot.sendMessage(msg.from.id, 'Wich link do you want?', simpleQuery);
+
+
+});
+
+bot.on("callback_query", function onCallbackQuery(callbackQuery) {
+  if (callbackQuery.data != 'false'){
+   console.log(callbackQuery.from)
+   bot.sendMessage(callbackQuery.from.id, callbackQuery.data);
+  //  edit messagge inline
+  //  bot.editMessageText('newText', {message_id: callbackQuery.message.message_id, chat_id: callbackQuery.message.chat.id})
+
+
+  }
+  console.log(callbackQuery.message.text)
+    // bot.sendMessage(msg.from.id, link[callbackQuery.data]);
+});
+
 
 
 bot.onText(/\/help/, function(msg, match) {
