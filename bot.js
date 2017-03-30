@@ -3,11 +3,35 @@ var SpotifyWebApi = require('spotify-web-api-node');
 var request = require("request")
 var reddit = require('redwrap');
 var spotifyApi = new SpotifyWebApi();
-
 var token = '332116990:AAH7a3XIEp2HPKxCwiB6vChnCeH8Ns9IfQc';
 // Setup polling way
 var bot = new TelegramBot(token, {polling: true});
 console.log('connected')
+
+// Options for links
+var options = {
+reply_markup: JSON.stringify({
+  inline_keyboard: [
+    [{ text: 'Youtube', callback_data: '0' }],
+    [{ text: 'iTunes', callback_data: '1' }],
+    [{ text: 'Spotify', callback_data: '2' }],
+    [{ text: 'Apple Music', callback_data: '3' }],
+  ]
+})
+};
+
+// Inline Query Yes or No
+var simpleQuery = {
+reply_markup: JSON.stringify({
+  inline_keyboard: [
+    [{ text: 'yes', callback_data: 'true' }],
+    [{ text: 'no', callback_data: 'false' }],
+  ]
+})
+};
+
+
+
 
 // Matches /artist [whatever]
 bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
@@ -17,7 +41,7 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
   var limit = parseInt(match[2]);
   var i = 0;
   var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFRESH%5D+'+artist+'&restrict_sr=on&sort=new&t=all'
-
+  bot.sendMessage(fromId, 'fetching last tracks')
   request({
     url: url,
     json: true
@@ -30,24 +54,28 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
           var patt = new RegExp(/fresh/i)
           var patto = new RegExp("^\\[[^\\]]*]")
           var titolo = results[t].data.title
+          console.log(results[t].data.secure_media)
+
             if (patto.test(titolo)&&patt.test(titolo)){
               console.log('TITOLO', titolo)
-              if (yourArray.indexOf(results[t].data.url == -1) {
+
+              if (sended.indexOf(results[t].data.url == -1)) {
                 bot.sendMessage(fromId, results[t].data.url)
                 sended.push(results[t].data.url)
                 i=i+1
-                if(i == limit){
-                  console.log('break')
-                  break
+                    if(i == limit){
+                      console.log('break')
+                      break
+                    }
+                  }
                 }
               }
             }
-          }
-        }
     else{
       bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')
+      console.log(body)
       }
-    }
+    })
   })
 
 
@@ -86,6 +114,7 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
             if (patto.test(titolo)&&patt.test(titolo)){
               console.log('URL', results[t].data.url)
               bot.sendMessage(fromId, results[t].data.url)
+
               i=i+1
               if(i == limit){
                 console.log('break')
@@ -114,9 +143,26 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
 
 
 bot.onText(/\/start/, function (msg) {
-  var chatId = msg.from.id;
+  var chatId = msg.id;
   bot.sendMessage(chatId, 'Hello, welcome to your fresh drops!');
 });
+
+
+
+bot.onText(/\/inline/, function (msg) {
+  var chatId = msg.from.id;
+  var link = ['youtube', 'itunes', 'spotify']
+
+  bot.sendMessage(msg.from.id, 'Wich link do you want?', options);
+
+
+});
+
+bot.on("callback_query", function onCallbackQuery(callbackQuery) {
+  console.log(callbackQuery.message.text)
+    // bot.sendMessage(msg.from.id, link[callbackQuery.data]);
+});
+
 
 
 bot.onText(/\/help/, function(msg, match) {
