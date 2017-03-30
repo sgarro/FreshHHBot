@@ -117,52 +117,35 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
 
     if (!error && response.statusCode === 200) {
       console.log('succes')
-
+        var sended = []
         var results = body.data.children
         for (var t = 0; t < results.length; ++t){
 
-          // if(i == limit){
-          //   console.log('break')
-          //   break
-          //
-          // }
           var patt = new RegExp(/fresh/i)
           var patto = new RegExp("^\\[[^\\]]*]")
           var titolo = results[t].data.title
-          // console.log(typeof(titolo))
-          // console.log(patt)
-          // check if flagged Fresh
-          // console.log('LIMIT', limit)
-          // while (i < 3){
+
             if (patto.test(titolo)&&patt.test(titolo)){
-              console.log('URL', results[t].data.url)
-              bot.sendMessage(fromId, results[t].data.url)
-              bot.sendMessage(msg.from.id, 'Wich link do you want?', options);
+              if (sended.indexOf(results[t].data.url == -1)) {
+                var simpleQuery = {
+                reply_markup: JSON.stringify({
+                  inline_keyboard: [
+                    [{ text: 'Gimme the topic', url: 'http://reddit.com'+results[t].data.permalink }],]
+                })
+                };
+                bot.sendMessage(fromId, results[t].data.url, simpleQuery)
+                sended.push(results[t].data.url)
+                i=i+1
 
-              i=i+1
-              if(i == limit){
-                console.log('break')
-                break
+                  if(i == limit){
+                    console.log('break')
+                    break
 
-              }
-              console.log(i)
-
-              // console.log(entry.data.title)
-            }
-          // }
-        }
-
-
-
-
-        // console.log(body.data.children[0].data.url)
-        // bot.sendMessage(fromId, body.data.children[0].data.url); // Print the json response
-    }
+                  }
+            }}}}
     else{
       bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')
-    }
-  })
-})
+    }})})
 
 
 
@@ -186,6 +169,10 @@ bot.on("callback_query", function onCallbackQuery(callbackQuery) {
   if (callbackQuery.data != 'false'){
    console.log(callbackQuery.from)
    bot.sendMessage(callbackQuery.from.id, callbackQuery.data);
+  //  edit messagge inline
+  //  bot.editMessageText('newText', {message_id: callbackQuery.message.message_id, chat_id: callbackQuery.message.chat.id})
+
+
   }
   console.log(callbackQuery.message.text)
     // bot.sendMessage(msg.from.id, link[callbackQuery.data]);
