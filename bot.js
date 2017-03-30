@@ -21,91 +21,35 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
   request({
     url: url,
     json: true
-  }, function (error, response, body) {
-
-    if (!error && response.statusCode === 200) {
+    }, function (error, response, body) {
+      if (!error && response.statusCode === 200) {
         console.log('succes')
-
+        var sended = []
         var results = body.data.children
         for (var t = 0; t < results.length; ++t){
-
           var patt = new RegExp(/fresh/i)
           var patto = new RegExp("^\\[[^\\]]*]")
           var titolo = results[t].data.title
-          // console.log(typeof(titolo))
-          // console.log(patt)
-          // check if flagged Fresh
-          // console.log('LIMIT', limit)
-          // while (i < 3){
             if (patto.test(titolo)&&patt.test(titolo)){
               console.log('TITOLO', titolo)
-              bot.sendMessage(fromId, results[t].data.url)
-              i=i+1
-              if(i == limit){
-                console.log('break')
-                break
-
+              if (yourArray.indexOf(results[t].data.url == -1) {
+                bot.sendMessage(fromId, results[t].data.url)
+                sended.push(results[t].data.url)
+                i=i+1
+                if(i == limit){
+                  console.log('break')
+                  break
+                }
               }
-              // console.log(entry.data.title)
             }
-          // }
+          }
         }
-
-
-
-
-        // console.log(body.data.children[0].data.url)
-        // bot.sendMessage(fromId, body.data.children[0].data.url); // Print the json response
-    }
     else{
       bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')
+      }
     }
   })
-})
-  // Get artist from spotify, send url
 
-//   spotifyApi.searchArtists(artist)
-//   .then(function(data) {
-//
-//     // send url of spotify
-//     var uri = data.body.artists.items[0].external_urls.spotify
-//     // bot.sendMessage(fromId, uri);
-//     // bot.sendMessage(fromId, url);
-//   }, function(err) {
-//     console.error(err);
-//   });
-//   // bot.sendMessage(fromId, url);
-// });
-
-// GET NEW TRACKS
-
-// bot.onText(/\/new/, function (msg) {
-//   var fromId = msg.from.id;
-//   var i = 0
-//   // GET LAST 20 posts
-//   reddit.r('hiphopheads').new().from('day').limit(200).exe(function(err, data, res){
-//
-//       // var results = body.data.children
-//   data.data.children.forEach(function (entry){
-//     i=i+1
-//     console.log(i)
-//     var patt = new RegExp(/fresh/i)
-//     var patto = new RegExp("\\[[^\\]]*]")
-//     var titolo = entry.data.title
-//     // console.log(titolo)
-//     // console.log(typeof(titolo))
-//     // console.log(patt)
-//     // check if flagged Fresh
-//     if (patto.test(titolo)&&patt.test(titolo)){
-//
-//       bot.sendMessage(fromId, entry.data.url);
-//       // console.log(entry.data.title)
-//     }
-//   })
-//
-// });
-// // console.log(i)
-// });
 
 
 bot.onText(/\/new ([0-9]*)/, function (msg, match) {
