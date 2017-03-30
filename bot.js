@@ -1,11 +1,20 @@
 var TelegramBot = require('node-telegram-bot-api');
 var SpotifyWebApi = require('spotify-web-api-node');
+const Tgfancy = require("tgfancy");
+var token = '332116990:AAH7a3XIEp2HPKxCwiB6vChnCeH8Ns9IfQc';
+const bot = new Tgfancy(token, {
+    polling: true,
+    tgfancy: {
+        orderedSending: true, // 'false' to disable!
+    },
+
+});
 var request = require("request")
 var reddit = require('redwrap');
 var spotifyApi = new SpotifyWebApi();
-var token = '332116990:AAH7a3XIEp2HPKxCwiB6vChnCeH8Ns9IfQc';
+
 // Setup polling way
-var bot = new TelegramBot(token, {polling: true});
+// var bot = new TelegramBot(token, {polling: true});
 console.log('connected')
 
 // Options for links
@@ -54,13 +63,27 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
           var patt = new RegExp(/fresh/i)
           var patto = new RegExp("^\\[[^\\]]*]")
           var titolo = results[t].data.title
-          console.log(results[t].data.secure_media)
+          try {
+          sended.push(results[t].data.secure_media.oembed.title)
+          }
+          catch(err){
+            console.log(err)
+          }
 
             if (patto.test(titolo)&&patt.test(titolo)){
               console.log('TITOLO', titolo)
 
               if (sended.indexOf(results[t].data.url == -1)) {
-                bot.sendMessage(fromId, results[t].data.url)
+                var simpleQuery = {
+                reply_markup: JSON.stringify({
+                  inline_keyboard: [
+                    [{ text: 'Gimme the topic', url: 'http://reddit.com'+results[t].data.permalink }],
+
+                  ]
+                })
+                };
+                bot.sendMessage(fromId, results[t].data.url, simpleQuery)
+                // bot.sendMessage(msg.from.id, 'Gimme the topic', );
                 sended.push(results[t].data.url)
                 i=i+1
                     if(i == limit){
@@ -154,12 +177,16 @@ bot.onText(/\/inline/, function (msg) {
   var chatId = msg.from.id;
   var link = ['youtube', 'itunes', 'spotify']
 
-  bot.sendMessage(msg.from.id, 'Wich link do you want?', options);
+  bot.sendMessage(msg.from.id, 'Wich link do you want?', simpleQuery);
 
 
 });
 
 bot.on("callback_query", function onCallbackQuery(callbackQuery) {
+  if (callbackQuery.data != 'false'){
+   console.log(callbackQuery.from)
+   bot.sendMessage(callbackQuery.from.id, callbackQuery.data);
+  }
   console.log(callbackQuery.message.text)
     // bot.sendMessage(msg.from.id, link[callbackQuery.data]);
 });
