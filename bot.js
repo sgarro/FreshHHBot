@@ -22,32 +22,35 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
     url: url,
     json: true
     }, function (error, response, body) {
+
       if (!error && response.statusCode === 200) {
-        console.log('succes')
+        console.log('success')
         var sended = []
         var results = body.data.children
+
         for (var t = 0; t < results.length; ++t){
+
           var patt = new RegExp(/fresh/i)
           var patto = new RegExp("^\\[[^\\]]*]")
           var titolo = results[t].data.title
+
             if (patto.test(titolo)&&patt.test(titolo)){
-              console.log('TITOLO', titolo)
-              if (yourArray.indexOf(results[t].data.url == -1) {
+
+              if (sended.indexOf(results[t].data.url == -1)) {
                 bot.sendMessage(fromId, results[t].data.url)
                 sended.push(results[t].data.url)
                 i=i+1
-                if(i == limit){
-                  console.log('break')
-                  break
-                }
-              }
-            }
-          }
-        }
+                      if(i == limit){
+                        console.log('break')
+                        break
+                      }
+                }}}}
+
     else{
       bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')
       }
-    }
+
+    })
   })
 
 
@@ -56,9 +59,9 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
   var fromId = msg.from.id;
   console.log('new')
   var limit = parseInt(match[1]);
-  // console.log(typeof(parseInt(limit)))
+  var sended = []
   var i = 0
-  var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFresh%5D&sort=top&restrict_sr=on&t=day&limit=1000'
+  var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFresh%5D&sort=relevance&restrict_sr=on&t=day&limit=1000'
   request({
     url: url,
     json: true
@@ -70,44 +73,24 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
         var results = body.data.children
         for (var t = 0; t < results.length; ++t){
 
-          // if(i == limit){
-          //   console.log('break')
-          //   break
-          //
-          // }
           var patt = new RegExp(/fresh/i)
           var patto = new RegExp("^\\[[^\\]]*]")
           var titolo = results[t].data.title
-          // console.log(typeof(titolo))
-          // console.log(patt)
-          // check if flagged Fresh
-          // console.log('LIMIT', limit)
-          // while (i < 3){
+
             if (patto.test(titolo)&&patt.test(titolo)){
-              console.log('URL', results[t].data.url)
-              bot.sendMessage(fromId, results[t].data.url)
-              i=i+1
+              if (sended.indexOf(results[t].data.url == -1)) {
+                bot.sendMessage(fromId, results[t].data.url)
+                sended.push(results[t].data.url)
+                i=i+1
+
               if(i == limit){
                 console.log('break')
                 break
+                }
 
-              }
-              console.log(i)
+            }}}}
 
-              // console.log(entry.data.title)
-            }
-          // }
-        }
-
-
-
-
-        // console.log(body.data.children[0].data.url)
-        // bot.sendMessage(fromId, body.data.children[0].data.url); // Print the json response
-    }
-    else{
-      bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')
-    }
+    else{bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')}
   })
 })
 
