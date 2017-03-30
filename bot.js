@@ -24,6 +24,7 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
   }, function (error, response, body) {
 
     if (!error && response.statusCode === 200) {
+        console.log('succes')
 
         var results = body.data.children
         for (var t = 0; t < results.length; ++t){
@@ -55,6 +56,9 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
 
         // console.log(body.data.children[0].data.url)
         // bot.sendMessage(fromId, body.data.children[0].data.url); // Print the json response
+    }
+    else{
+      bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')
     }
   })
 })
@@ -156,6 +160,9 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
 
         // console.log(body.data.children[0].data.url)
         // bot.sendMessage(fromId, body.data.children[0].data.url); // Print the json response
+    }
+    else{
+      bot.sendMessage(fromId, 'sorry, the streets are busy, try again later')
     }
   })
 })
