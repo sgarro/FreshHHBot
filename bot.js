@@ -1,5 +1,24 @@
 var TelegramBot = require('node-telegram-bot-api');
 var SpotifyWebApi = require('spotify-web-api-node');
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://Sgarro:telegrampwd@ds147520.mlab.com:47520/telegram-bot');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log('connected to Mongo')
+});
+var chatSchema = mongoose.Schema({
+message_id: Number,
+from: { id: Number, first_name: String, last_name: String },
+date: Number,
+text: String,
+
+});
+
+
+
+
+
 const Tgfancy = require("tgfancy");
 var token = '332116990:AAH7a3XIEp2HPKxCwiB6vChnCeH8Ns9IfQc';
 const bot = new Tgfancy(token, {
@@ -44,6 +63,18 @@ reply_markup: JSON.stringify({
 
 // Matches /artist [whatever]
 bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
+  var mChat = mongoose.model('chat', chatSchema);
+  var chat =new mChat ({
+    message_id : msg.message_id,
+    from: msg.from,
+    date: msg.date,
+    text: msg.text
+  })
+  console.log(chat)
+  mongoose.model('chat').create(chat, function (err, client) {
+             if (err) {
+                 console.log(err)
+             } else { console.log('saved')}})
   var fromId = msg.from.id;
   var resp = match[1];
   var artist = resp.replace(/\s/g, '+')
@@ -104,6 +135,18 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
 
 
 bot.onText(/\/new ([0-9]*)/, function (msg, match) {
+  var mChat = mongoose.model('chat', chatSchema);
+  var chat =new mChat ({
+    message_id : msg.message_id,
+    from: msg.from,
+    date: msg.date,
+    text: msg.text
+  })
+  console.log(chat)
+  mongoose.model('chat').create(chat, function (err, client) {
+             if (err) {
+                 console.log(err)
+             } else { console.log('saved')}})
   var fromId = msg.from.id;
   console.log('new')
   var limit = parseInt(match[1]);
@@ -151,7 +194,20 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
 
 bot.onText(/\/start/, function (msg) {
   var chatId = msg.id;
+  console.log(msg)
   bot.sendMessage(chatId, 'Hello, welcome to your fresh drops!');
+  var mChat = mongoose.model('chat', chatSchema);
+  var chat =new mChat ({
+    message_id : msg.message_id,
+    from: msg.from,
+    date: msg.date,
+    text: msg.text
+  })
+  console.log(chat)
+  mongoose.model('chat').create(chat, function (err, client) {
+             if (err) {
+                 console.log(err)
+             } else { console.log('saved')}})
 });
 
 
@@ -163,6 +219,21 @@ bot.onText(/\/inline/, function (msg) {
   bot.sendMessage(msg.from.id, 'Wich link do you want?', simpleQuery);
 
 
+});
+
+bot.onText(/\/chat/, function (msg) {
+  var mChat = mongoose.model('chat', chatSchema);
+  var chat =new mChat ({
+    message_id : msg.message_id,
+    from: msg.from,
+    date: msg.date,
+    text: msg.text
+  })
+  console.log(chat)
+  mongoose.model('chat').create(chat, function (err, client) {
+             if (err) {
+                 console.log(err)
+             } else { console.log('saved')}})
 });
 
 bot.on("callback_query", function onCallbackQuery(callbackQuery) {
@@ -181,6 +252,18 @@ bot.on("callback_query", function onCallbackQuery(callbackQuery) {
 
 
 bot.onText(/\/help/, function(msg, match) {
+  var mChat = mongoose.model('chat', chatSchema);
+  var chat =new mChat ({
+    message_id : msg.message_id,
+    from: msg.from,
+    date: msg.date,
+    text: msg.text
+  })
+  console.log(chat)
+  mongoose.model('chat').create(chat, function (err, client) {
+             if (err) {
+                 console.log(err)
+             } else { console.log('saved')}})
   var fromId = msg.from.id;
   bot.sendMessage(fromId, "Type /new n to get n fresh tracks of the day {example /new 10}");
   bot.sendMessage(fromId, "Type /artist nameArtist n to get the last n tracks of that artist {example /artist kendrick lamar 2}");
