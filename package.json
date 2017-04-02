@@ -27,6 +27,7 @@
     "mongodb": "^2.2.25",
     "mongoose": "^4.9.2",
     "node-telegram-bot-api": "^0.27.0",
+    "reddit-stream": "^1.2.0",
     "redwrap": "0.0.4",
     "spotify-web-api-node": "^2.3.6",
     "telegram-bot-bootstrap": "0.0.15",
