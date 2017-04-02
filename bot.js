@@ -1,5 +1,8 @@
+// heroku ps:scale web=0
+
 var TelegramBot = require('node-telegram-bot-api');
 var SpotifyWebApi = require('spotify-web-api-node');
+var RedditStream = require('reddit-stream')
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://Sgarro:telegrampwd@ds147520.mlab.com:47520/telegram-bot');
 var db = mongoose.connection;
@@ -15,8 +18,55 @@ text: String,
 
 });
 
+var subscribeSchema = mongoose.Schema({
 
+  artist: String,
+  message_id: [Number]
 
+})
+
+comment_stream = new RedditStream('comments', 'all', 'telegram-bot')
+
+// comment_stream.start()
+// comment_stream.on('new', function(comments){
+//   console.log('found', comments.length)
+// })
+// comment_stream.on('new', function(comments){
+//   console.log('comment_stream')
+//   console.log('found', comments[0].data.title)
+//   for (var t = 0; t < comments.length; ++t){
+//     var patt = new RegExp(/fresh/i)
+//     var patto = new RegExp("^\\[[^\\]]*]")
+//     var titolo = comments[t].data.title
+//   //   // try {
+//   //   // sended.push(comments[t].data.secure_media.oembed.title)
+//   //   // }
+//   //   // catch(err){
+//   //   //   console.log(err)
+//   //   // }
+//   //
+//       if (patto.test(titolo)&&patt.test(titolo)){
+//       if(1){
+//         console.log('TITOLO', titolo)
+//   //
+//         // if (sended.indexOf(comments[t].data.url == -1)) {
+//           var simpleQuery = {
+//           reply_markup: JSON.stringify({
+//             inline_keyboard: [
+//               [{ text: 'Gimme the topic', url: 'http://reddit.com'+comments[t].data.permalink }],
+//
+//             ]
+//           })}
+//           // };
+//           bot.sendMessage(47391615, comments[t].data.url, simpleQuery)
+//           // bot.sendMessage(msg.from.id, 'Gimme the topic', );
+//           // sended.push(comments[t].data.url)
+//
+//
+//             }
+//           }
+//         }
+// })
 
 
 const Tgfancy = require("tgfancy");
@@ -59,7 +109,23 @@ reply_markup: JSON.stringify({
 };
 
 
+bot.onText(/\/subscribe (.+)/, function(msg, match){
+  var mSubscribe = mongoose.model('subscribe', subscribeSchema);
+  var founded = {}
+  mongoose.model('subscribe').findOneAndUpdate({ artist: match[1] }, { $push: {'message_id': msg.from.id} }, function(err, find) {
+  if (err) throw err;
 
+  // we have the updated user returned to us
+  if (find == null){
+    mongoose.model('subscribe').create({artist: match[1], message_id: [msg.from.id]}, function (err, client) {
+               if (err) {
+                   console.log(err)
+               } else { console.log('saved')}})
+  }
+});
+
+
+})
 
 // Matches /artist [whatever]
 bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
