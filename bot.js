@@ -1,6 +1,8 @@
+// heroku ps:scale web=0
+
 var TelegramBot = require('node-telegram-bot-api');
 var SpotifyWebApi = require('spotify-web-api-node');
-var RedditStream = require('reddit-stream');
+var RedditStream = require('reddit-stream')
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://Sgarro:telegrampwd@ds147520.mlab.com:47520/telegram-bot');
 var db = mongoose.connection;
@@ -16,51 +18,58 @@ text: String,
 
 });
 
-comment_stream = new RedditStream('posts', 'hiphopheads', 'telegram-bot')
+var subscribeSchema = mongoose.Schema({
 
+  artist: String,
+  message_id: [Number]
+
+})
+
+  var mSubscribe = mongoose.model('subscribe', subscribeSchema);
+
+  var toTitleCase = function (str)
+  {
+      return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+  }
+
+comment_stream = new RedditStream('posts', 'hiphopheads', 'telegram-bot')
 
 comment_stream.start()
 comment_stream.on('new', function(comments){
   console.log('found', comments.length)
 })
 comment_stream.on('new', function(comments){
-  console.log('comment_stream')
-  console.log('found', comments[0].data.title)
-  for (var t = 0; t < comments.length; ++t){
-    var patt = new RegExp(/fresh/i)
-    var patto = new RegExp("^\\[[^\\]]*]")
-    var titolo = comments[t].data.title
-    console.log('TITOLO', titolo)
-  //   // try {
-  //   // sended.push(comments[t].data.secure_media.oembed.title)
-  //   // }
-  //   // catch(err){
-  //   //   console.log(err)
-  //   // }
-  //
-      if (patto.test(titolo)&&patt.test(titolo)){
-      if(1){
-        console.log('TITOLO', titolo)
-  //
-        // if (sended.indexOf(comments[t].data.url == -1)) {
-          // var simpleQuery = {
-          // reply_markup: JSON.stringify({
-          //   inline_keyboard: [
-          //     [{ text: 'Gimme the topic', url: 'http://reddit.com'+comments[t].data.permalink }],
-          //
-          //   ]
-          // })}
-          // };
-          // bot.sendMessage(47391615, comments[t].data.url, simpleQuery)
-          // bot.sendMessage(msg.from.id, 'Gimme the topic', );
-          // sended.push(comments[t].data.url)
+  mSubscribe.find({}, function(err, artist){
+     artist.forEach(function(artist) {
+       for (var t = 0; t < comments.length; ++t){
+         var sended = []
+         var patt = new RegExp(/fresh/i)
+         var patto = new RegExp("^\\[[^\\]]*]")
+         var titolo = comments[t].data.title
+           if (patto.test(titolo)&&patt.test(titolo)){
+             if(titolo.includes(artist.artist)){
+             if (sended.indexOf(comments[t].data.url == -1)) {
+               var simpleQuery = {
+               reply_markup: JSON.stringify({
+                 inline_keyboard: [
+                   [{ text: 'Gimme the topic', url: 'http://reddit.com'+comments[t].data.permalink }],
+
+                 ]
+               })}
+               artist.message_id.forEach(function(id){
+              console.log(id)
+              console.log(titolo)
+               bot.sendMessage(id, comments[t].data.url, simpleQuery)
+               sended.push(comments[t].data.url)
+             });
+                 }
+               }
+             }
+           }
+      });})
 
 
-            }
-          }
-        }
 })
-
 
 
 const Tgfancy = require("tgfancy");
@@ -76,8 +85,6 @@ var request = require("request")
 var reddit = require('redwrap');
 var spotifyApi = new SpotifyWebApi();
 
-// Setup polling way
-// var bot = new TelegramBot(token, {polling: true});
 console.log('connected')
 
 // Options for links
@@ -103,7 +110,18 @@ reply_markup: JSON.stringify({
 };
 
 
-
+bot.onText(/\/subscribe (.+)/, function(msg, match){
+  console.log(toTitleCase(match[1]))
+  mSubscribe.findOneAndUpdate({ artist: toTitleCase(match[1]) }, { $push: {'message_id': msg.from.id} }, function(err, find) {
+  if (err) throw err;
+  if (find == null){
+    mongoose.model('subscribe').create({artist: match[1], message_id: [msg.from.id]}, function (err, client) {
+               if (err) {
+                   console.log(err)
+               } else { console.log('saved')}})
+  }
+});
+})
 
 // Matches /artist [whatever]
 bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
