@@ -331,4 +331,5 @@ bot.onText(/\/help/, function(msg, match) {
   var fromId = msg.from.id;
   bot.sendMessage(fromId, "Type /new n to get n fresh tracks of the day {example /new 10}");
   bot.sendMessage(fromId, "Type /artist nameArtist n to get the last n tracks of that artist {example /artist kendrick lamar 2}");
+  bot.sendMessage(fromId, "Type /subscribe nameArtist to get new shit of that artist as soon as it gets on the streets. For this, notifications are off {example /artist kendrick lamar 2}");
 });
