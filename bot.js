@@ -120,7 +120,10 @@ bot.onText(/\/subscribe (.+)/, function(msg, match){
     mongoose.model('subscribe').create({artist: toTitleCase(match[1]), message_id: [msg.from.id]}, function (err, client) {
                if (err) {
                    console.log(err)
-               } else { console.log('saved')}})
+               } else { console.log('saved')
+               var text = "All right, i will notify you of new shit from "+toTitleCase(match[1])
+               bot.sendMessage(msg.from.id, text)
+             }})
   }
 });
 })
