@@ -115,7 +115,7 @@ bot.onText(/\/subscribe (.+)/, function(msg, match){
   mSubscribe.findOneAndUpdate({ artist: toTitleCase(match[1]) }, { $push: {'message_id': msg.from.id} }, function(err, find) {
   if (err) throw err;
   if (find == null){
-    mongoose.model('subscribe').create({artist: match[1], message_id: [msg.from.id]}, function (err, client) {
+    mongoose.model('subscribe').create({artist: toTitleCase(match[1]), message_id: [msg.from.id]}, function (err, client) {
                if (err) {
                    console.log(err)
                } else { console.log('saved')}})
