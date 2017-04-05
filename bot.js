@@ -49,7 +49,8 @@ comment_stream.on('new', function(comments){
            if (patto.test(titolo)&&patt.test(titolo)){
              if(titolo.includes(artist.artist)){
              if (sended.indexOf(comments[t].data.url == -1)) {
-               var simpleQuery = {
+               var opt = {
+                 disable_notification: true,
                reply_markup: JSON.stringify({
                  inline_keyboard: [
                    [{ text: 'Gimme the topic', url: 'http://reddit.com'+comments[t].data.permalink }],
@@ -59,7 +60,8 @@ comment_stream.on('new', function(comments){
                artist.message_id.forEach(function(id){
               console.log(id)
               console.log(titolo)
-               bot.sendMessage(id, comments[t].data.url, simpleQuery)
+              var disable_notification = {'disable_notification':true}
+               bot.sendMessage(id, comments[t].data.url, opt)
                sended.push(comments[t].data.url)
              });
                  }
