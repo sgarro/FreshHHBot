@@ -4,75 +4,27 @@ var TelegramBot = require('node-telegram-bot-api');
 var SpotifyWebApi = require('spotify-web-api-node');
 var RedditStream = require('reddit-stream')
 var mongoose = require('mongoose');
+var request = require("request")
+var reddit = require('redwrap');
+var spotifyApi = new SpotifyWebApi();
+
+Array.prototype.contains = function(obj) {
+    var i = this.length;
+    while (i--) {
+        if (this[i] == obj) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 mongoose.connect('mongodb://Sgarro:telegrampwd@ds147520.mlab.com:47520/telegram-bot');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log('connected to Mongo')
 });
-var chatSchema = mongoose.Schema({
-message_id: Number,
-from: { id: Number, first_name: String, last_name: String },
-date: Number,
-text: String,
-
-});
-
-var subscribeSchema = mongoose.Schema({
-
-  artist: String,
-  message_id: [Number]
-
-})
-
-  var mSubscribe = mongoose.model('subscribe', subscribeSchema);
-
-  var toTitleCase = function (str)
-  {
-      return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-  }
-
-comment_stream = new RedditStream('posts', 'hiphopheads', 'telegram-bot')
-
-comment_stream.start()
-comment_stream.on('new', function(comments){
-  console.log('found', comments.length)
-})
-comment_stream.on('new', function(comments){
-  mSubscribe.find({}, function(err, artist){
-     artist.forEach(function(artist) {
-       for (var t = 0; t < comments.length; ++t){
-         var sended = []
-         var patt = new RegExp(/fresh/i)
-         var patto = new RegExp("^\\[[^\\]]*]")
-         var titolo = comments[t].data.title
-           if (patto.test(titolo)&&patt.test(titolo)){
-             if(titolo.includes(artist.artist)){
-             if (sended.indexOf(comments[t].data.url == -1)) {
-               var opt = {
-                 disable_notification: true,
-               reply_markup: JSON.stringify({
-                 inline_keyboard: [
-                   [{ text: 'Gimme the topic', url: 'http://reddit.com'+comments[t].data.permalink }],
-
-                 ]
-               })}
-               artist.message_id.forEach(function(id){
-              console.log(id)
-              console.log(titolo)
-              var disable_notification = {'disable_notification':true}
-               bot.sendMessage(id, comments[t].data.url, opt)
-               sended.push(comments[t].data.url)
-             });
-                 }
-               }
-             }
-           }
-      });})
-
-
-})
-
 
 const Tgfancy = require("tgfancy");
 var token = '332116990:AAH7a3XIEp2HPKxCwiB6vChnCeH8Ns9IfQc';
@@ -83,9 +35,6 @@ const bot = new Tgfancy(token, {
     },
 
 });
-var request = require("request")
-var reddit = require('redwrap');
-var spotifyApi = new SpotifyWebApi();
 
 console.log('connected')
 
@@ -112,21 +61,67 @@ reply_markup: JSON.stringify({
 };
 
 
-bot.onText(/\/subscribe (.+)/, function(msg, match){
-  console.log(toTitleCase(match[1]))
-  mSubscribe.findOneAndUpdate({ artist: toTitleCase(match[1]) }, { $push: {'message_id': msg.from.id} }, function(err, find) {
-  if (err) throw err;
-  if (find == null){
-    mongoose.model('subscribe').create({artist: toTitleCase(match[1]), message_id: [msg.from.id]}, function (err, client) {
-               if (err) {
-                   console.log(err)
-               } else { console.log('saved')
-               var text = "All right, i will notify you of new shit from "+toTitleCase(match[1])
-               bot.sendMessage(msg.from.id, text)
-             }})
-  }
+
+
+var chatSchema = mongoose.Schema({
+message_id: Number,
+from: { id: Number, first_name: String, last_name: String },
+date: Number,
+text: String,
+
 });
+
+var subscribeSchema = mongoose.Schema({
+
+  artist: String,
+  message_id: [Number]
+
 })
+
+var mSubscribe = mongoose.model('subscribe', subscribeSchema);
+
+var toTitleCase = function (str){return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});}
+
+
+bot.onText(/\/start/, function (msg) {
+  var chatId = msg.id;
+  console.log(msg)
+  bot.sendMessage(chatId, 'Hello, welcome to your fresh drops!');
+  var mChat = mongoose.model('chat', chatSchema);
+  var chat =new mChat ({
+    message_id : msg.message_id,
+    from: msg.from,
+    date: msg.date,
+    text: msg.text
+  })
+  console.log(chat)
+  mongoose.model('chat').create(chat, function (err, client) {
+             if (err) {
+                 console.log(err)
+             } else { console.log('saved')}})
+});
+
+// help
+bot.onText(/\/help/, function(msg, match) {
+  var mChat = mongoose.model('chat', chatSchema);
+  var chat =new mChat ({
+    message_id : msg.message_id,
+    from: msg.from,
+    date: msg.date,
+    text: msg.text
+  })
+  console.log(chat)
+  mongoose.model('chat').create(chat, function (err, client) {
+             if (err) {
+                 console.log(err)
+             } else { console.log('saved')}})
+  var fromId = msg.from.id;
+  bot.sendMessage(fromId, "Type /new n to get n fresh tracks of the day {example /new 10}");
+  bot.sendMessage(fromId, "Type /artist nameArtist n to get the last n tracks of that artist {example /artist kendrick lamar 2}");
+  bot.sendMessage(fromId, "Type /subscribe nameArtist to get new shit of that artist as soon as it gets on the streets. For this, notifications are off {example /artist kendrick lamar 2}");
+  bot.sendMessage(fromId, "Type /unsubscribe nameArtist to remove you from a subscription. You will no longer get updates from that artist");
+});
+
 
 // Matches /artist [whatever]
 bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
@@ -171,7 +166,7 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
             if (patto.test(titolo)&&patt.test(titolo)){
               console.log('TITOLO', titolo)
 
-              if (sended.indexOf(results[t].data.url == -1)) {
+              if (!sended.contains(results[t].data.url)) {
                 var simpleQuery = {
                 reply_markup: JSON.stringify({
                   inline_keyboard: [
@@ -200,7 +195,7 @@ bot.onText(/\/artist (.+) ([0-9]*)/, function (msg, match) {
   })
 
 
-
+// get new shit
 bot.onText(/\/new ([0-9]*)/, function (msg, match) {
   var mChat = mongoose.model('chat', chatSchema);
   var chat =new mChat ({
@@ -216,7 +211,12 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
              } else { console.log('saved')}})
   var fromId = msg.from.id;
   console.log('new')
-  var limit = parseInt(match[1]);
+  if (parseInt(match[1])){
+    var limit = parseInt(match[1]);
+  }
+  else{
+  var limit = 10;
+  }
   // console.log(typeof(parseInt(limit)))
   var i = 0
   var url = 'https://www.reddit.com/r/hiphopheads/search.json?q=%5BFresh%5D&sort=top&restrict_sr=on&t=day&limit=1000'
@@ -258,50 +258,67 @@ bot.onText(/\/new ([0-9]*)/, function (msg, match) {
     }})})
 
 
+    // subscribe to live posts
+    bot.onText(/\/subscribe (.+)/, function(msg, match){
+      console.log(toTitleCase(match[1]))
+      var text = ''
+      mSubscribe.findOneAndUpdate({ artist: toTitleCase(match[1]) }, { $addToSet: {'message_id': msg.from.id} }, {upsert: true}, function(err, find) {
+      if (err) throw err;
+      else{
+        var text = "All right, i will notify you of new shit from "+toTitleCase(match[1])
+        bot.sendMessage(msg.from.id, text)
+      }})});
 
-bot.onText(/\/start/, function (msg) {
-  var chatId = msg.id;
-  console.log(msg)
-  bot.sendMessage(chatId, 'Hello, welcome to your fresh drops!');
-  var mChat = mongoose.model('chat', chatSchema);
-  var chat =new mChat ({
-    message_id : msg.message_id,
-    from: msg.from,
-    date: msg.date,
-    text: msg.text
-  })
-  console.log(chat)
-  mongoose.model('chat').create(chat, function (err, client) {
-             if (err) {
-                 console.log(err)
-             } else { console.log('saved')}})
-});
+    // unsubscribe from live posts
+    bot.onText(/\/unsubscribe (.+)/, function(msg, match){
+      console.log(toTitleCase(match[1]))
+      mSubscribe.findOneAndUpdate({ artist: toTitleCase(match[1]) }, { $pop: {'message_id': msg.from.id} }, function(err, find) {
+      if (err) throw err;
+      var text = "All right, i will no longer notify you of new shit from "+toTitleCase(match[1])
+      bot.sendMessage(msg.from.id, text)
+      console.log('removed user')
+      console.log(find.message_id)
+      find.message_id.pop(msg.from.id)
+        if(find.message_id.length == 0 ){
+        find.remove()
+      }
+
+    });
+    });
+
+posts_stream = new RedditStream('posts', 'hiphopheads', 'telegram-bot')
+
+posts_stream.start()
+posts_stream.on('new', function(posts){
+  mSubscribe.find({}, function(err, artist){
+    for (var t = 0; t < posts.length; ++t){
+      var sended = []
+      var patt = new RegExp(/fresh/i)
+      var patto = new RegExp("^\\[[^\\]]*]")
+      var titolo = posts[t].data.title
+        if (patto.test(titolo)&&patt.test(titolo)){
+          console.log('titolo', titolo)
+          artist.forEach(function(artist){
+            if(titolo.includes(artist.artist)){
+              if (sended.indexOf(posts[t].data.url == -1)) {
+                var opt = {
+                  disable_notification: true,
+                  reply_markup: JSON.stringify({
+                  inline_keyboard: [
+                    [{ text: 'Gimme the topic', url: 'http://reddit.com'+posts[t].data.permalink }]]
+                  })}
+                artist.message_id.forEach(function(id){
+                  console.log(id)
+                  console.log(titolo)
+                  bot.sendMessage(id, "Hey, there's new shit from "+artist.artist+""+posts[t].data.url, opt)
+                  sended.push(posts[t].data.url)
+                });}}});}}});});
 
 
 
-bot.onText(/\/inline/, function (msg) {
-  var chatId = msg.from.id;
-  var link = ['youtube', 'itunes', 'spotify']
-
-  bot.sendMessage(msg.from.id, 'Wich link do you want?', simpleQuery);
 
 
-});
 
-bot.onText(/\/chat/, function (msg) {
-  var mChat = mongoose.model('chat', chatSchema);
-  var chat =new mChat ({
-    message_id : msg.message_id,
-    from: msg.from,
-    date: msg.date,
-    text: msg.text
-  })
-  console.log(chat)
-  mongoose.model('chat').create(chat, function (err, client) {
-             if (err) {
-                 console.log(err)
-             } else { console.log('saved')}})
-});
 
 bot.on("callback_query", function onCallbackQuery(callbackQuery) {
   if (callbackQuery.data != 'false'){
@@ -314,25 +331,4 @@ bot.on("callback_query", function onCallbackQuery(callbackQuery) {
   }
   console.log(callbackQuery.message.text)
     // bot.sendMessage(msg.from.id, link[callbackQuery.data]);
-});
-
-
-
-bot.onText(/\/help/, function(msg, match) {
-  var mChat = mongoose.model('chat', chatSchema);
-  var chat =new mChat ({
-    message_id : msg.message_id,
-    from: msg.from,
-    date: msg.date,
-    text: msg.text
-  })
-  console.log(chat)
-  mongoose.model('chat').create(chat, function (err, client) {
-             if (err) {
-                 console.log(err)
-             } else { console.log('saved')}})
-  var fromId = msg.from.id;
-  bot.sendMessage(fromId, "Type /new n to get n fresh tracks of the day {example /new 10}");
-  bot.sendMessage(fromId, "Type /artist nameArtist n to get the last n tracks of that artist {example /artist kendrick lamar 2}");
-  bot.sendMessage(fromId, "Type /subscribe nameArtist to get new shit of that artist as soon as it gets on the streets. For this, notifications are off {example /artist kendrick lamar 2}");
 });
