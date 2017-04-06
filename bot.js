@@ -84,9 +84,8 @@ var toTitleCase = function (str){return str.replace(/\w\S*/g, function(txt){retu
 
 
 bot.onText(/\/start/, function (msg) {
-  var chatId = msg.id;
   console.log(msg)
-  bot.sendMessage(chatId, 'Hello, welcome to your fresh drops!');
+
   var mChat = mongoose.model('chat', chatSchema);
   var chat =new mChat ({
     message_id : msg.message_id,
@@ -99,6 +98,9 @@ bot.onText(/\/start/, function (msg) {
              if (err) {
                  console.log(err)
              } else { console.log('saved')}})
+var text = "Type /new n to get n fresh tracks of the day {example /new 10} <br> Type /artist nameArtist n to get the last n tracks of that artist {example /artist kendrick lamar 2} <br> Type /subscribe nameArtist to get new shit of that artist as soon as it gets on the streets. For this, notifications are off {example /subscribe kendrick lamar} <br> Type /unsubscribe nameArtist to remove you from a subscription. You will no longer get updates from that artist {example /unsubscribe kendrick lamar}"
+var fromId = msg.from.id;
+bot.sendMessage(fromId, text);
 });
 
 // help
@@ -116,10 +118,11 @@ bot.onText(/\/help/, function(msg, match) {
                  console.log(err)
              } else { console.log('saved')}})
   var fromId = msg.from.id;
+
   bot.sendMessage(fromId, "Type /new n to get n fresh tracks of the day {example /new 10}");
   bot.sendMessage(fromId, "Type /artist nameArtist n to get the last n tracks of that artist {example /artist kendrick lamar 2}");
-  bot.sendMessage(fromId, "Type /subscribe nameArtist to get new shit of that artist as soon as it gets on the streets. For this, notifications are off {example /artist kendrick lamar 2}");
-  bot.sendMessage(fromId, "Type /unsubscribe nameArtist to remove you from a subscription. You will no longer get updates from that artist");
+  bot.sendMessage(fromId, "Type /subscribe nameArtist to get new shit of that artist as soon as it gets on the streets. For this, notifications are off {example /subscribe kendrick lamar}");
+  bot.sendMessage(fromId, "Type /unsubscribe nameArtist to remove you from a subscription. You will no longer get updates from that artist {example /unsubscribe kendrick lamar}");
 });
 
 
