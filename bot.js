@@ -98,9 +98,21 @@ bot.onText(/\/start/, function (msg) {
              if (err) {
                  console.log(err)
              } else { console.log('saved')}})
-var text = "Type /new n to get n fresh tracks of the day {example /new 10} <br> Type /artist nameArtist n to get the last n tracks of that artist {example /artist kendrick lamar 2} <br> Type /subscribe nameArtist to get new shit of that artist as soon as it gets on the streets. For this, notifications are off {example /subscribe kendrick lamar} <br> Type /unsubscribe nameArtist to remove you from a subscription. You will no longer get updates from that artist {example /unsubscribe kendrick lamar}"
+var text = `<i>/new n</i> - get n fresh tracks of the day
+<strong>{example /new 10}</strong>
+
+<i>/artist nameArtist n</i> - get the last n tracks of that artist
+<strong>{example /artist kendrick lamar 2}</strong>
+
+<i>/subscribe nameArtist</i> - get new shit of that artist as soon as it gets on the streets. For this, notifications are off
+<strong>{example /subscribe kendrick lamar}</strong>
+
+<i>/unsubscribe nameArtist</i> - remove you from a subscription. You will no longer get updates from that artist
+<strong>{example /unsubscribe kendrick lamar}</strong>`
+
 var fromId = msg.from.id;
-bot.sendMessage(fromId, text);
+// bot.sendMessage(fromId, text, {parse_mode: "Markdown"});
+bot.sendMessage(fromId, text, {parse_mode: "Html"});
 });
 
 // help
@@ -118,11 +130,18 @@ bot.onText(/\/help/, function(msg, match) {
                  console.log(err)
              } else { console.log('saved')}})
   var fromId = msg.from.id;
+  var text = `<i>/new n</i> - get n fresh tracks of the day
+  <strong>{example /new 10}</strong>
 
-  bot.sendMessage(fromId, "Type /new n to get n fresh tracks of the day {example /new 10}");
-  bot.sendMessage(fromId, "Type /artist nameArtist n to get the last n tracks of that artist {example /artist kendrick lamar 2}");
-  bot.sendMessage(fromId, "Type /subscribe nameArtist to get new shit of that artist as soon as it gets on the streets. For this, notifications are off {example /subscribe kendrick lamar}");
-  bot.sendMessage(fromId, "Type /unsubscribe nameArtist to remove you from a subscription. You will no longer get updates from that artist {example /unsubscribe kendrick lamar}");
+  <i>/artist nameArtist n</i> - get the last n tracks of that artist
+  <strong>{example /artist kendrick lamar 2}</strong>
+
+  <i>/subscribe nameArtist</i> - get new shit of that artist as soon as it gets on the streets. For this, notifications are off
+  <strong>{example /subscribe kendrick lamar}</strong>
+
+  <i>/unsubscribe nameArtist</i> - remove you from a subscription. You will no longer get updates from that artist
+  <strong>{example /unsubscribe kendrick lamar}</strong>`
+  bot.sendMessage(fromId, text, {parse_mode: "Html"});
 });
 
 
