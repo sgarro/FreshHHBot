@@ -72,9 +72,9 @@ text: String,
 });
 
 var subscribeSchema = mongoose.Schema({
-
   artist: String,
-  message_id: [Number]
+  message_id: [Number],
+  sended: [String]
 
 })
 
@@ -322,7 +322,7 @@ posts_stream.on('new', function(posts){
           console.log('titolo', titolo)
           artist.forEach(function(artist){
             if(titolo.includes(artist.artist)){
-              if (sended.indexOf(posts[t].data.url == -1)) {
+              if (artist.sended.indexOf(posts[t].data.url) == -1) {
                 var opt = {
                   disable_notification: true,
                   reply_markup: JSON.stringify({
@@ -333,8 +333,13 @@ posts_stream.on('new', function(posts){
                   console.log(id)
                   console.log(titolo)
                   bot.sendMessage(id, "Hey, there's new shit from "+artist.artist+""+posts[t].data.url, opt)
-                  sended.push(posts[t].data.url)
-                });}}});}}});});
+
+                })
+                mSubscribe.findOneAndUpdate({artist: artist.artist}, { $addToSet: {'sended': posts[t].data.url} }, function(err, artist){
+                  if (err) throw err;})
+                ;}
+                else console.log('already sended')
+              }});}}});});
 
 
 
