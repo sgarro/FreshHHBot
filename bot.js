@@ -332,7 +332,7 @@ posts_stream.on('new', function(posts){
                 artist.message_id.forEach(function(id){
                   console.log(id)
                   console.log(titolo)
-                  bot.sendMessage(id, "Hey, there's new shit from "+artist.artist+""+posts[t].data.url, opt)
+                  bot.sendMessage(id, "Hey, there's new shit from "+artist.artist+" "+posts[t].data.url, opt)
 
                 })
                 mSubscribe.findOneAndUpdate({artist: artist.artist}, { $addToSet: {'sended': posts[t].data.url} }, function(err, artist){
